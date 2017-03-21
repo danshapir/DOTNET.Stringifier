@@ -1,0 +1,7 @@
+Stringify/bin
+\.vs/
+Stringify/obj
+Stringify/packages/
+
+StringifyUnitTest/obj
+StringifyUnitTest/bin
