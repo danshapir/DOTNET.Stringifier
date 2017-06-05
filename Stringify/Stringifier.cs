@@ -5,29 +5,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Common.Logging;
 using FastMember;
 using Stringify.Attributes;
 
 namespace Stringify
 {
-    public static class Stringifier
+     public static class Stringifier
     {
-
-        private static ILog _logger = null;
-
-        static Stringifier()
-        {
-            try
-            {
-                _logger = LogManager.GetLogger(typeof(Stringifier));
-            }
-            catch (Exception ex)
-            {
-
-            }
-        }
-
         // A cached constructor
         private static readonly ConcurrentDictionary<Type, TypeAccessor> Accessors = new ConcurrentDictionary<Type, TypeAccessor>();
         private static readonly ConcurrentDictionary<string, Type> TypeDictionary = new ConcurrentDictionary<string, Type>();
@@ -36,13 +20,21 @@ namespace Stringify
         {
             try
             {
+                if (source == null)
+                {
+                    return string.Empty;
+                }
+
+                var sourceType = source?.GetType();
                 // If primitive just return it
-                if (source != null && (typeof(T).IsPrimitive || typeof(T).IsValueType)) return source.ToString();
+                if (source != null && (typeof(T).IsPrimitive || typeof(T).IsValueType || sourceType.IsPrimitive || sourceType.IsValueType || sourceType == typeof(String)))
+                {
+                    return source.ToString();
+                }
 
                 var str = string.Empty;
                 var args = new List<object>();
                 var index = 0;
-                var sourceType = source.GetType();
                 var accessor = GetAccessor(sourceType);
 
                 // We are counting that if you have an attribute extension class, it will be named ORIGINAL_Attribute
@@ -66,7 +58,8 @@ namespace Stringify
                         : metaProperties.FirstOrDefault(p => p.Name == property.Name));
 
                     // If hide log - don't display
-                    if (metaProperty != null && metaProperty.IsDefined(typeof(HideLog))) continue;
+                    if (metaProperty != null && metaProperty.IsDefined(typeof(HideLog)))
+                        continue;
 
                     // If Encrypted - encrypt
                     var propertyValue = accessor[source, property.Name];
@@ -74,10 +67,10 @@ namespace Stringify
                     if (propertyValue != null)
                     {
 
-                        str += property.Name + "={" + index++ + "}";
+                        str = String.Concat(str, property.Name, "={", index++, "}");
                         if (index != length)
                         {
-                            str += ", ";
+                            str = String.Concat(str, ", ");
                         }
 
                         args.Add(ObjectToString(propertyValue, metaProperty));
@@ -88,7 +81,6 @@ namespace Stringify
             }
             catch (Exception ex)
             {
-                _logger?.Error(ex);
                 return string.Empty;
             }
         }
@@ -97,16 +89,31 @@ namespace Stringify
         {
             if (obj != null && metaProperty != null)
             {
-                if (metaProperty.IsDefined(typeof(Mask))) return string.Empty.PadLeft(obj.ToString().Length, 'X');
+                if (metaProperty.IsDefined(typeof(Mask)))
+                {
+                    return string.Empty.PadLeft(obj.ToString().Length, 'X');
+                }
             }
 
-            if (obj is string) return obj as string;
+            if (obj is string)
+            {
+                return obj as string;
+            }
 
-            if (obj is ICollection) return (obj as ICollection).Count.ToString();
+            if (obj is ICollection)
+            {
+                return (obj as ICollection).Count.ToString();
+            }
 
-            if (obj == null) return string.Empty;
+            if (obj == null)
+            {
+                return string.Empty;
+            }
 
-            if (obj.GetType().IsPrimitive || obj.GetType().IsValueType) return obj.ToString();
+            if (obj.GetType().IsPrimitive || obj.GetType().IsValueType)
+            {
+                return obj.ToString();
+            }
 
             return "{" + Stringify(obj) + "}";
         }
