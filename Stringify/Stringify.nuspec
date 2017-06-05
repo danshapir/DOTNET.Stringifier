@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>DOTNET.Stringifier</id>
+    <version>$version$</version>
+    <title>DOTNET.Stringifier</title>
+    <authors>Dan Shapir</authors>
+    <owners>Dan Shapir</owners>
+    <licenseUrl>https://github.com/danshapir/DOTNET.Stringifier/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/danshapir/DOTNET.Stringifier</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Stringify any object</description>
+    <releaseNotes>Summary of changes made in this release of the package.</releaseNotes>
+    <copyright>Copyright 2017</copyright>
+    <tags>Tag1 Tag2</tags>
+  </metadata>
+</package>
