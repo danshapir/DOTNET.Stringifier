@@ -49,7 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DummyClass.cs" />
-    <Compile Include="UnitTest1.cs" />
+    <Compile Include="StringifyTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

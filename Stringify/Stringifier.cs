@@ -3,14 +3,12 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using FastMember;
 using Stringify.Attributes;
 
 namespace Stringify
 {
-     public static class Stringifier
+    public static class Stringifier
     {
         // A cached constructor
         private static readonly ConcurrentDictionary<Type, TypeAccessor> Accessors = new ConcurrentDictionary<Type, TypeAccessor>();
@@ -30,6 +28,11 @@ namespace Stringify
                 if (source != null && (typeof(T).IsPrimitive || typeof(T).IsValueType || sourceType.IsPrimitive || sourceType.IsValueType || sourceType == typeof(String)))
                 {
                     return source.ToString();
+                }
+                else if (source is IEnumerable)
+                {
+                    var enumerable = ((IEnumerable)source).Cast<object>();
+                    return $"[{string.Join(",", enumerable.Select(i => $"{{{i.Stringify()}}}"))}]";
                 }
 
                 var str = string.Empty;
@@ -57,24 +60,22 @@ namespace Stringify
                         ? null
                         : metaProperties.FirstOrDefault(p => p.Name == property.Name));
 
-                    // If hide log - don't display
-                    if (metaProperty != null && metaProperty.IsDefined(typeof(HideLog)))
-                        continue;
-
-                    // If Encrypted - encrypt
                     var propertyValue = accessor[source, property.Name];
 
-                    if (propertyValue != null)
+                    // If null or should be hidden to log - don't display
+                    if (propertyValue == null || NeedToBeHidden(metaProperties, property))
                     {
-
-                        str = String.Concat(str, property.Name, "={", index++, "}");
-                        if (index != length)
-                        {
-                            str = String.Concat(str, ", ");
-                        }
-
-                        args.Add(ObjectToString(propertyValue, metaProperty));
+                        length--;  // do not count this field when need to understand if should add ", " separator
+                        continue;
                     }
+
+                    str = string.Concat(str, property.Name, "={", index++, "}");
+                    if (index < length)
+                    {
+                        str = string.Concat(str, ", ");
+                    }
+
+                    args.Add(ObjectToString(propertyValue, metaProperty));
                 }
 
                 return String.Format(str, args.ToArray());
@@ -100,9 +101,9 @@ namespace Stringify
                 return obj as string;
             }
 
-            if (obj is ICollection)
+            if (obj is IEnumerable)
             {
-                return (obj as ICollection).Count.ToString();
+                return (obj as IEnumerable).Cast<object>().Count().ToString();
             }
 
             if (obj == null)
@@ -128,5 +129,15 @@ namespace Stringify
             return TypeDictionary.GetOrAdd(type, Type.GetType(type));
         }
 
+        private static bool NeedToBeHidden(MemberSet metaProperties, Member propertyToCheck)
+        {
+            // If meta exists, find matching property
+            var metaProperty = (metaProperties == null
+                ? null
+                : metaProperties.FirstOrDefault(p => p.Name == propertyToCheck.Name));
+
+            // If hide log - don't display
+            return (metaProperty != null && metaProperty.IsDefined(typeof(HideLog)));
+        }
     }
 }
