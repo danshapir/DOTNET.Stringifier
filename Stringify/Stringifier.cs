@@ -104,7 +104,12 @@ namespace Stringify
                 return obj as string;
             }
 
-            if (obj is IEnumerable)
+            if (obj is ICollection)
+            {
+                return (obj as ICollection).Count.ToString();
+            }
+
+            if (obj is IEnumerable) // IEnumerable is higher than ICollection
             {
                 return (obj as IEnumerable).Cast<object>().Count().ToString();
             }
