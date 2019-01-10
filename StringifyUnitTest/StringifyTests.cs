@@ -72,6 +72,28 @@ namespace StringifyUnitTest
         }
 
         [TestMethod]
+        public void Stringify_ObjectWithDictionaryProperty()
+        {
+            // Arrange
+            var obj = new DummyClassPersonsDictionary
+            {
+                Persons = new Dictionary<int, DummyClassPerson>
+                {
+                    {5, new DummyClassPerson {Age = 30, Name = "Eric"}},
+                    {10, new DummyClassPerson {Age = 30, Name = "Bentz"}}
+                },
+                OneMoreProperty = "Hello World"
+            };
+
+            // Act
+            var strRes = obj.Stringify();
+
+            // Assert
+            var expected = "OneMoreProperty=Hello World, Persons=2";
+            Assert.AreEqual(expected, strRes);
+        }
+
+        [TestMethod]
         public void Stringify_Enumerable()
         {
             // Arrange
@@ -167,6 +189,58 @@ namespace StringifyUnitTest
 
             // Assert
             var expected = "[{},{}]";
+            Assert.AreEqual(expected, strRes);
+        }
+        
+        [TestMethod]
+        public void Stringify_Dictionary()
+        {
+            // Arrange
+            var dict = new Dictionary<int, DummyClassPerson>
+            {
+                {5, new DummyClassPerson {Age = 30, Name = "Eric"}},
+                {10, new DummyClassPerson {Age = 30, Name = "Bentz"}}
+            };
+
+            // Act
+            var strRes = dict.Stringify();
+
+            // Assert
+            var expected = "[{Key=5, Value={Age=30, Name=Eric}},{Key=10, Value={Age=30, Name=Bentz}}]";
+            Assert.AreEqual(expected, strRes);
+        }
+
+        [TestMethod]
+        public void Stringify_DynamicObject()
+        {
+            // Arrange
+            var obj = new
+            {
+                Prop = new
+                {
+                    Color = "Blue",
+                    Number = 10
+                },
+                AnotherProp = new
+                {
+                    Season = "Summer",
+                    Letter = 'C'
+                },
+                List = new List<dynamic>
+                {
+                    new
+                    {
+                        SomeField = "567",
+                        SomeFieldNumeric = 567
+                    }
+                }
+            };
+
+            // Act
+            var strRes = obj.Stringify();
+
+            // Assert
+            var expected = "AnotherProp={Letter=C, Season=Summer}, List=1, Prop={Color=Blue, Number=10}";
             Assert.AreEqual(expected, strRes);
         }
     }

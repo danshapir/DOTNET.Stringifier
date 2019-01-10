@@ -24,8 +24,11 @@ namespace Stringify
                 }
 
                 var sourceType = source?.GetType();
+
                 // If primitive just return it
-                if (source != null && (typeof(T).IsPrimitive || typeof(T).IsValueType || sourceType.IsPrimitive || sourceType.IsValueType || sourceType == typeof(String)))
+                if (source != null 
+                    && (sourceType.IsPrimitive || sourceType.IsValueType || sourceType.IsPrimitive || sourceType.IsValueType || sourceType == typeof(String))
+                    && sourceType.Name != typeof(KeyValuePair<,>).Name)
                 {
                     return source.ToString();
                 }
@@ -78,7 +81,7 @@ namespace Stringify
                     args.Add(ObjectToString(propertyValue, metaProperty));
                 }
 
-                return String.Format(str, args.ToArray());
+                return string.Format(str, args.ToArray());
             }
             catch (Exception ex)
             {

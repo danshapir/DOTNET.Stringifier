@@ -39,6 +39,13 @@ namespace StringifyUnitTest
         public string OneMoreProperty { get; set; }
     }
 
+    public class DummyClassPersonsDictionary
+    {
+        public IDictionary<int, DummyClassPerson> Persons { get; set; }
+
+        public string OneMoreProperty { get; set; }
+    }
+
     public class DummyClassOnlyWithHidden
     {
         [HideLog]
