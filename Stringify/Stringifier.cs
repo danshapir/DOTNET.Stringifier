@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+#if NETSTANDARD1_3_OR_GREATER
+using System.Reflection;
+#endif
 using FastMember;
 using Stringify.Attributes;
 
@@ -23,11 +26,17 @@ namespace Stringify
                     return string.Empty;
                 }
 
+#if NET452_OR_GREATER
                 var sourceType = source?.GetType();
+				var sourceTypeInfo = sourceType;
+#elif NETSTANDARD1_3_OR_GREATER
+				var sourceType = source?.GetType();
+				var sourceTypeInfo = sourceType?.GetTypeInfo();
+#endif
 
-                // If primitive just return it
-                if (source != null 
-                    && (sourceType.IsPrimitive || sourceType.IsValueType || sourceType.IsPrimitive || sourceType.IsValueType || sourceType == typeof(String))
+				// If primitive just return it
+				if (source != null 
+                    && (sourceTypeInfo.IsPrimitive || sourceTypeInfo.IsValueType || sourceTypeInfo.IsPrimitive || sourceTypeInfo.IsValueType || sourceType == typeof(String))
                     && sourceType.Name != typeof(KeyValuePair<,>).Name)
                 {
                     return source.ToString();
@@ -44,7 +53,7 @@ namespace Stringify
                 var accessor = GetAccessor(sourceType);
 
                 // We are counting that if you have an attribute extension class, it will be named ORIGINAL_Attribute
-                var metaType = GetType(sourceType.FullName + "_Attribute," + sourceType.Assembly.FullName);
+                var metaType = GetType(sourceType.FullName + "_Attribute," + sourceTypeInfo.Assembly.FullName);
                 if (metaType == null)
                 {
                     metaType = sourceType;
@@ -119,7 +128,15 @@ namespace Stringify
                 return string.Empty;
             }
 
-            if (obj.GetType().IsPrimitive || obj.GetType().IsValueType)
+#if NET452_OR_GREATER
+                var sourceType = obj?.GetType();
+				var sourceTypeInfo = sourceType;
+#elif NETSTANDARD1_3_OR_GREATER
+			var sourceType = obj?.GetType();
+			var sourceTypeInfo = sourceType?.GetTypeInfo();
+#endif
+
+			if (sourceTypeInfo.IsPrimitive || sourceTypeInfo.IsValueType)
             {
                 return obj.ToString();
             }

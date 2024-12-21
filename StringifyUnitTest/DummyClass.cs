@@ -1,13 +1,9 @@
-﻿using System;
+﻿using Stringify.Attributes;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Stringify.Attributes;
 
 namespace StringifyUnitTest
 {
-    public class DummyClass
+	public class DummyClass
     {
         [HideLog]
         public string Hidden { get; set; }
